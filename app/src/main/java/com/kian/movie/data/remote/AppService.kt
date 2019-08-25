@@ -1,12 +1,17 @@
 package com.kian.movie.data.remote
 
-import io.reactivex.Completable
+import com.kian.movie.data.models.MovieDiscoverResponse
+import io.reactivex.Single
 import retrofit2.http.GET
+import retrofit2.http.Query
 
 interface AppService {
 
-    @GET("sample")
-    fun sampleApi(): Completable
+    @GET("discover/movie")
+    fun discoverMovies(
+        @Query("primary_release_year") year: Int,
+        @Query("include_adult") include_adult: Boolean = false
+    ): Single<MovieDiscoverResponse>
 
 
 }
