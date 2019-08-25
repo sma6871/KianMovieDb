@@ -8,9 +8,9 @@ import com.kian.movie.data.models.MovieItem
 import com.kian.movie.extensions.inflate
 import kotlinx.android.synthetic.main.list_item.view.*
 
-class MovieListAdapter(private var movies: List<MovieItem>) :
+class MovieListAdapter :
     RecyclerView.Adapter<MovieListAdapter.ViewHolder>() {
-
+    private var movies: List<MovieItem> = listOf()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(parent.inflate(R.layout.list_item, parent))
     }

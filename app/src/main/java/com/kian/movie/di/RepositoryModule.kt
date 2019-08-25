@@ -16,5 +16,6 @@ val repositoryModule = module()
     }
 
     single { RemoteRepository(get() as AppService) }
+    single { LocalRepository() }
 
 }

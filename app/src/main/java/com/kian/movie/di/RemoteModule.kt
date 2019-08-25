@@ -1,6 +1,7 @@
 package com.kian.movie.di
 
 import android.content.Context
+import com.google.gson.GsonBuilder
 import com.kian.movie.R
 import com.kian.movie.data.remote.AppService
 import com.kian.movie.data.remote.AuthenticatorInterceptor
@@ -19,6 +20,7 @@ val remoteModule = module(createdAtStart = true) {
     single { createOkHttpClient(androidContext(), get() as AuthenticatorInterceptor) }
 
     single { AuthenticatorInterceptor() }
+    single { GsonBuilder().create() }
 
     single { GsonConverterFactory.create(get()) }
 
