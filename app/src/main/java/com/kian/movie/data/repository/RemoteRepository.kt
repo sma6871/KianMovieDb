@@ -6,7 +6,7 @@ import com.kian.movie.extensions.observeUiSubscribeIo
 import io.reactivex.Single
 
 class RemoteRepository(private val appService: AppService) {
-    fun discoverMovies(year: Int): Single<MovieDiscoverResponse> {
-        return appService.discoverMovies(year).observeUiSubscribeIo()
+    fun discoverMovies(year: Int, page: Int): Single<MovieDiscoverResponse> {
+        return appService.discoverMovies(year, page).observeUiSubscribeIo()
     }
 }

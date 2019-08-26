@@ -15,6 +15,7 @@ import com.kian.movie.extensions.plusAssign
 import com.kian.movie.extensions.showHide
 import com.kian.movie.ui.base.BaseActivity
 import com.kian.movie.ui.details.DetailsActivity
+import com.kian.movie.utils.EndlessRecyclerOnScrollListener
 import kotlinx.android.synthetic.main.activity_list.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -50,8 +51,10 @@ class ListActivity : BaseActivity() {
             intent.putExtra(BundleExtraKeys.MovieData, movieData)
             startActivity(intent)
         }
-        listMovies.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        val linearLayoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        listMovies.layoutManager = linearLayoutManager
         listMovies.adapter = adapter
+
     }
 
     private fun initYearsSpinner() {
@@ -62,6 +65,7 @@ class ListActivity : BaseActivity() {
         )
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         yearsSpinner.adapter = dataAdapter
+
         yearsSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View, pos: Int, id: Long) {
                 val year = parent?.getItemAtPosition(pos).toString().toIntOrNull()
@@ -71,15 +75,17 @@ class ListActivity : BaseActivity() {
             override fun onNothingSelected(p0: AdapterView<*>?) {
             }
         }
-
     }
 
     private fun observeState() {
         bag += viewModel.listActivityState.subscribe {
             when (it) {
+                Init -> showLoading(false)
                 Loading -> showLoading(true)
                 is SuccessLoading -> showList(it.movies)
                 is ErrorLoading -> showError(it.message)
+                LoadingMore -> showLoadingMore(true)
+                is SuccessLoadingMore -> appendList(it.movies)
             }
         }
     }
@@ -90,11 +96,34 @@ class ListActivity : BaseActivity() {
     }
 
     private fun showList(movies: List<MovieItem>) {
+        listMovies.clearOnScrollListeners()
         showLoading(false)
         adapter?.updateData(movies)
+        listMovies.smoothScrollToPosition(0)
+        listMovies.addOnScrollListener(object :
+            EndlessRecyclerOnScrollListener(listMovies.layoutManager as LinearLayoutManager) {
+            override fun onLoadMore(current_page: Int) {
+                viewModel.loadMore(current_page)
+            }
+
+        })
+    }
+
+    private fun appendList(movies: List<MovieItem>) {
+        showLoadingMore(false)
+        adapter?.appendData(movies)
     }
 
     private fun showLoading(isShow: Boolean) {
         loading.showHide(isShow)
+        listMovies.showHide(!isShow)
+        yearsSpinner.showHide(!isShow)
+        yearsSpinnerTitle.showHide(!isShow)
+    }
+
+    private fun showLoadingMore(isShow: Boolean) {
+        loading.showHide(isShow)
+        yearsSpinner.showHide(!isShow)
+        yearsSpinnerTitle.showHide(!isShow)
     }
 }

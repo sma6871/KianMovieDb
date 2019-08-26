@@ -30,6 +30,15 @@ class MovieListAdapter(val itemClickListener: (itemData: String) -> Unit) :
         notifyDataSetChanged()
     }
 
+    /**
+     * call this method to append new data to movies list
+     **/
+    fun appendData(movies: List<MovieItem>) {
+        val index = this.movies.size
+        this.movies += movies
+        notifyItemRangeInserted(index, movies.size)
+    }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         movies.getOrNull(position)?.let { movie ->
