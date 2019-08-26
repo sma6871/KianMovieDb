@@ -2,5 +2,6 @@ package com.kian.movie.constants
 
 object ApplicationConstants {
     const val API_KEY = "api_key"
-    const val IMAGES_BASE_URL = "https://image.tmdb.org/t/p/w500"
+    const val POSTER_BASE_URL = "https://image.tmdb.org/t/p/w185"
+    const val BACKDROP_BASE_URL = "https://image.tmdb.org/t/p/w780"
 }

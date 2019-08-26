@@ -1,22 +1,28 @@
 package com.kian.movie.ui.list
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import com.kian.movie.R
+import com.kian.movie.constants.BundleExtraKeys
 import com.kian.movie.data.models.MovieItem
 import com.kian.movie.extensions.plusAssign
 import com.kian.movie.extensions.showHide
 import com.kian.movie.ui.base.BaseActivity
+import com.kian.movie.ui.details.DetailsActivity
 import kotlinx.android.synthetic.main.activity_list.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+
 
 class ListActivity : BaseActivity() {
 
     private val viewModel: ListViewModel by viewModel()
-    private var adapter = MovieListAdapter()
+    private var adapter: MovieListAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,12 +34,44 @@ class ListActivity : BaseActivity() {
         if (savedInstanceState == null) {
             viewModel.initMovies()
         }
-
     }
 
     private fun initUi() {
+        initMoviesList()
+        initYearsSpinner()
+    }
+
+    private fun initMoviesList() {
+        adapter = MovieListAdapter { movieData ->
+            // Convert data to json and pass to details activity
+            // As a better way, we should cache downloaded data into a persistent storage in list activity
+            // and just pass movie id to details activity and then load info from storage by that id
+            val intent = Intent(this, DetailsActivity::class.java)
+            intent.putExtra(BundleExtraKeys.MovieData, movieData)
+            startActivity(intent)
+        }
         listMovies.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         listMovies.adapter = adapter
+    }
+
+    private fun initYearsSpinner() {
+        val years = listOf("All") + (2019 downTo 1990).toList().map { it.toString() }
+        val dataAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item, years
+        )
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        yearsSpinner.adapter = dataAdapter
+        yearsSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View, pos: Int, id: Long) {
+                val year = parent?.getItemAtPosition(pos).toString().toIntOrNull()
+                viewModel.initMovies(year ?: -1)
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+            }
+        }
+
     }
 
     private fun observeState() {
@@ -53,7 +91,7 @@ class ListActivity : BaseActivity() {
 
     private fun showList(movies: List<MovieItem>) {
         showLoading(false)
-        adapter.updateData(movies)
+        adapter?.updateData(movies)
     }
 
     private fun showLoading(isShow: Boolean) {

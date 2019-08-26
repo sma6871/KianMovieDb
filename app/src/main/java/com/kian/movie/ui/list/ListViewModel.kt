@@ -3,11 +3,12 @@ package com.kian.movie.ui.list
 import com.kian.movie.data.repository.Repository
 import com.kian.movie.extensions.addToDisposable
 import com.kian.movie.viewmodels.BaseViewModel
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
 class ListViewModel(val repository: Repository) : BaseViewModel() {
 
-    val listActivityState = PublishSubject.create<ListActivityState>()
+    val listActivityState = BehaviorSubject.create<ListActivityState>()
 
     fun initMovies(year: Int = -1) {
         //go to loading state
@@ -20,6 +21,7 @@ class ListViewModel(val repository: Repository) : BaseViewModel() {
                 },
                 {
                     listActivityState.onNext(ErrorLoading(it.localizedMessage ?: ""))
+                    listActivityState.onNext(Init)
                 }
             )
         }

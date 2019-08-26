@@ -2,13 +2,18 @@ package com.kian.movie.ui.list
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import com.kian.movie.R
 import com.kian.movie.data.models.MovieItem
+import com.kian.movie.extensions.click
 import com.kian.movie.extensions.inflate
+import com.kian.movie.extensions.toJson
 import kotlinx.android.synthetic.main.list_item.view.*
 
-class MovieListAdapter :
+class MovieListAdapter(val itemClickListener: (itemData: String) -> Unit) :
     RecyclerView.Adapter<MovieListAdapter.ViewHolder>() {
     private var movies: List<MovieItem> = listOf()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -27,16 +32,19 @@ class MovieListAdapter :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        movies.getOrNull(position)?.let {
-            holder.txtRate.text = it.voteAverage.toString()
-            holder.txtTitle.text = it.title.toString()
-            holder.txtYear.text = it.releaseDate.toString()
+        movies.getOrNull(position)?.let { movie ->
+            holder.txtRate.text = movie.voteAverage.toString()
+            holder.txtTitle.text = movie.title.toString()
+            holder.txtYear.text = movie.releaseDate.toString()
+            holder.itemView.click {
+                itemClickListener.invoke(movie.toJson())
+            }
         }
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val txtYear = itemView.txtYear
-        val txtTitle = itemView.txtTitle
-        val txtRate = itemView.txtRate
+        val txtYear: TextView = itemView.txtYear
+        val txtTitle: TextView = itemView.txtTitle
+        val txtRate: TextView = itemView.txtRate
     }
 }
