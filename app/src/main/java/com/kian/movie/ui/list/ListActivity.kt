@@ -42,6 +42,18 @@ class ListActivity : BaseActivity() {
         initYearsSpinner()
     }
 
+    private fun observeState() {
+        bag += viewModel.listActivityState.subscribe {
+            when (it) {
+                Init -> showLoading(false)
+                is Loading -> showLoading(true, it.isMore)
+                is SuccessLoading -> showList(it.movies)
+                is ErrorLoading -> showError(it.message)
+                is SuccessLoadingMore -> appendList(it.movies)
+            }
+        }
+    }
+
     private fun initMoviesList() {
         adapter = MovieListAdapter { movieData ->
             // Convert data to json and pass to details activity
@@ -77,18 +89,6 @@ class ListActivity : BaseActivity() {
         }
     }
 
-    private fun observeState() {
-        bag += viewModel.listActivityState.subscribe {
-            when (it) {
-                Init -> showLoading(false)
-                Loading -> showLoading(true)
-                is SuccessLoading -> showList(it.movies)
-                is ErrorLoading -> showError(it.message)
-                LoadingMore -> showLoadingMore(true)
-                is SuccessLoadingMore -> appendList(it.movies)
-            }
-        }
-    }
 
     private fun showError(errorMessage: String) {
         showLoading(false)
@@ -110,20 +110,16 @@ class ListActivity : BaseActivity() {
     }
 
     private fun appendList(movies: List<MovieItem>) {
-        showLoadingMore(false)
+        showLoading(false, true)
         adapter?.appendData(movies)
     }
 
-    private fun showLoading(isShow: Boolean) {
+    private fun showLoading(isShow: Boolean, isMore: Boolean = false) {
         loading.showHide(isShow)
-        listMovies.showHide(!isShow)
         yearsSpinner.showHide(!isShow)
         yearsSpinnerTitle.showHide(!isShow)
+        if (!isMore)
+            listMovies.showHide(!isShow)
     }
 
-    private fun showLoadingMore(isShow: Boolean) {
-        loading.showHide(isShow)
-        yearsSpinner.showHide(!isShow)
-        yearsSpinnerTitle.showHide(!isShow)
-    }
 }

@@ -6,7 +6,7 @@ import com.kian.movie.viewmodels.BaseViewModel
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
-class ListViewModel(val repository: Repository) : BaseViewModel() {
+class ListViewModel(private val repository: Repository) : BaseViewModel() {
 
     val listActivityState = BehaviorSubject.create<ListActivityState>()
     private var totalPages = 0
@@ -15,7 +15,7 @@ class ListViewModel(val repository: Repository) : BaseViewModel() {
     fun initMovies(year: Int = -1) {
         selectedYear = year
         //go to loading state
-        listActivityState.onNext(Loading)
+        listActivityState.onNext(Loading(false))
         addToDisposable {
             repository.discoverMovies(year).subscribe(
                 {
@@ -33,7 +33,7 @@ class ListViewModel(val repository: Repository) : BaseViewModel() {
 
     fun loadMore(newPageIndex: Int) {
         if (totalPages >= newPageIndex) {
-            listActivityState.onNext(LoadingMore)
+            listActivityState.onNext(Loading(true))
             addToDisposable {
                 repository.discoverMovies(selectedYear, newPageIndex).subscribe(
                     {
